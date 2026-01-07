@@ -13,6 +13,19 @@ const double F_limit = -459.67;
 const double invalid_temp = -999.9;
 
 
+//void debug_print(int* arr) {
+//
+//}
+//
+//void debug_print(char* arr) {
+//
+//}
+//
+//void debug_print(int* arr) {
+//
+//}
+
+
 double FtoC(double temp_f) {
 	return (temp_f - 32.0) * (5.0 / 9.0);
 }
@@ -117,6 +130,7 @@ void show_menu(void) {
 
 
 void show_hist(double* conv_hist, char* unit_hist, int hist_size, int hist_ptr) {
+	/*
 	const int max_elements = hist_size / 2;
 	int element_count, i, j, ec;
 	if (hist_ptr <= hist_size) {
@@ -136,13 +150,25 @@ void show_hist(double* conv_hist, char* unit_hist, int hist_size, int hist_ptr) 
 		ec--;
 		i += 2;
 	}
+	cout << endl;
+	*/
+
+	if (hist_ptr == 0) {
+		cout << "No data found.";
+		return;
+	}
+
+	for (int i = 0; (i < hist_size) && (i < hist_ptr); i += 2) {
+		//cout << (element_count - ec + 1) << ") " << conv_hist[j] << unit_hist[j] << " = " << conv_hist[j + 1] << unit_hist[j + 1] << "\n";
+		cout << (i / 2)+1 << ") " << conv_hist[i] << unit_hist[i] << " = " << conv_hist[i + 1] << unit_hist[i + 1] << "\n";
+	}
 
 	cout << endl;
 }
 
 
 int main(void) {
-	const int hist_size = 6;
+	const int hist_size = 100;  // space for 50 records
 	int data_counter = 0;
 	double conv_hist[hist_size];
 	char unit_hist[hist_size];
@@ -217,21 +243,37 @@ int main(void) {
 				conv_temp = invalid_temp;
 			}
 
+			cout << "\n";
+			cout << "Original temperature (" << orig_unit << "): " << orig_temp << "\n";
+			cout << "Converted temperature (" << conv_unit << "): " << conv_temp << "\n";
+			cout << "\n";
+
+			//system("pause");
+			/*cout << ". . .";
+			cin.ignore(1000, '\n');
+			getline(cin, pause);*/
+
 			// update conversion history
+			// OLD solution with wrapped history (once reached the end, wrap to the beginning)
+			/*
 			conv_hist[data_counter % hist_size] = orig_temp;
 			conv_hist[(data_counter % hist_size)+1] = conv_temp;
 			unit_hist[data_counter % hist_size] = orig_unit;
 			unit_hist[(data_counter % hist_size)+1] = conv_unit;
 			data_counter += 2;
+			*/
 
-			cout << "\n";
-			cout << "Original temperature (" << orig_unit << "): " << orig_temp << "\n";
-			cout << "Converted temperature (" << conv_unit << "): " << conv_temp << "\n";
-			cout << "\n";
-			//system("pause");
-			/*cout << ". . .";
-			cin.ignore(1000, '\n');
-			getline(cin, pause);*/
+			// new solution - max at buffer size
+			if (data_counter < hist_size) {
+				conv_hist[data_counter] = orig_temp;
+				conv_hist[data_counter + 1] = conv_temp;
+				unit_hist[data_counter] = orig_unit;
+				unit_hist[data_counter + 1] = conv_unit;
+				data_counter += 2;
+			}
+			else {
+				cout << "No more space in the history to save the record";
+			}
 		}
 		else if (option == 7) {
 			show_hist(conv_hist, unit_hist, hist_size, data_counter);
